@@ -1,0 +1,64 @@
+<!html>
+<head>
+	<link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.0/css/bulma.css" />
+</head>
+
+
+<body class='container'>
+	<div class='section'>
+		<div class="columns">
+		  <div id='dataout' class="column is-9">
+			<span class='title is-3'>Chat</span>
+				<ul id='chat' class='box' style='min-height: 50vh; color:white; background: teal;'>
+				</ul>
+		  </div>
+			 <div id='dataout' class="column is-3">
+			<span class='title is-3'>Users</span>
+			<ul id='clientList' class='box is-info' style='min-height: 50vh; color:white; background: orange;'>
+			</ul>
+		  </div>
+		</div>
+		<div class="columns">
+				<div id='datain' class="column is-12">
+				<input class="input" type="text" placeholder="Text input">
+				<a class="button is-primary" onclick='sendToServer()'>Submit</a>
+		  </div>
+		</div>
+	</div>
+</body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
+<script>
+  var socket = io('http://localhost:3131');
+	var uniqueId = localStorage.getItem('id');	
+
+var clientList = $('#clientList');
+var chat = $('#chat');
+
+	socket.emit('initialize', {});
+	
+  socket.on('updateClientList', function (data) {
+		console.log('Clientlist: ', data);
+		clientList.html('');
+		data.clientIdList.forEach( function (client) {
+			clientList.append('<li>'+client+'</li>')
+		});
+  });
+
+	 socket.on('updateClientChat', function (data) {
+		 chat.html('');
+		data.clientChat.forEach( function (message) {
+			chat.append('<li>'+message+'</li>');
+		});
+  });
+  
+  function sendToServer () {
+		var input = $('input:text').val();
+		socket.emit('datain', { 'input' : input});
+		$('input:text').val('');
+  }
+</script>
+
+</html>
