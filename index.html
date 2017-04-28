@@ -54,10 +54,12 @@ var chat = $('#chat');
   });
 
 	 socket.on('updateClientChat', function (data) {
-		 chat.html('');
-		data.clientChat.forEach( function (message) {
-			chat.append('<li>'+message+'</li>');
-		});
+		 	chat.html('');
+			data.clientChat.forEach( function (message) {
+				chat.append('<li>'+message+'</li>');
+			});
+			var x = document.getElementById('chat');
+			x.scrollTop = x.scrollHeight;
   });
 
 	function sendUserNameToServer () {
