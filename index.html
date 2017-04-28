@@ -10,21 +10,25 @@
 		<div class="columns">
 		  <div id='dataout' class="column is-three-quarter-tablet">
 			<span class='title is-3'>Chat</span>			
-					<ul id='chat' class='box' style='min-height: 50vh; max-height: 40vh; overflow-y: hidden; color:white; background: teal;'>
+					<ul id='chat' class='box' style='min-height: 40vh; max-height: 40vh; overflow-y: auto; color:white; background: teal;'>
 					</ul>			
 		  </div>
-			 <div id='dataout' class="column is-one-quarter-tablet">
+			 <div id='dataout' class="column is-one-quarter-tablet is-hidden-mobile">
 			<span class='title is-3'>Users</span>			
-					<ul id='clientList' class='box is-info' style='min-height: 15vh; max-height: 50vh; overflow-y: overflow; color:white; background: orange;'>
+					<ul id='clientList' class='box is-info' style='min-height: 40vh; max-height: 40vh; overflow-y: auto; color:white; background: orange;'>
 					</ul>	
 		  </div>
 		</div>
-		<div class="columns is-desktop">
-			<form onsubmit='javascript:sendChatMessageToServer()'>
-				<div id='datain' class="column is-12">
-					<input class="input" type="text" placeholder="Text input">
-					<input type="submit" class="button is-primary" />
-		  	</div>
+		<div>
+			<form onsubmit='javascript:sendChatMessageToServer()' action="javascript:void(0);">
+				<div class="field has-addons">
+					<p class="control is-expanded">
+						<input class="input" type="text" placeholder="Message">
+					</p>
+					<p class="control">
+						<input type="submit" class="button is-primary" />
+					</p>			
+					</div>
 			</form>
 		</div>
 	</div>
@@ -57,11 +61,13 @@ var chat = $('#chat');
   });
 
 	function sendUserNameToServer () {
-		var username = prompt("Please enter your name:", "");
+		
+		var username = localStorage.getItem('username') || prompt("Please enter your name:", "");
 		if(username == null || username == "") {
 			username = 'Generic User';
 		}
 		socket.emit('setUsername', { username: username});
+		localStorage.setItem('username', username);
 	}
   
   function sendChatMessageToServer () {
