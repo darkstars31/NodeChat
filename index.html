@@ -8,18 +8,18 @@
 <body class='container'>
 	<div class='section'>
 		<div class="columns">
-		  <div id='dataout' class="column is-9">
-			<span class='title is-3'>Chat</span>
-				<ul id='chat' class='box' style='min-height: 50vh; color:white; background: teal;'>
-				</ul>
+		  <div id='dataout' class="column is-three-quarter-tablet">
+			<span class='title is-3'>Chat</span>			
+					<ul id='chat' class='box' style='min-height: 50vh; max-height: 40vh; overflow-y: hidden; color:white; background: teal;'>
+					</ul>			
 		  </div>
-			 <div id='dataout' class="column is-3">
-			<span class='title is-3'>Users</span>
-			<ul id='clientList' class='box is-info' style='min-height: 50vh; color:white; background: orange;'>
-			</ul>
+			 <div id='dataout' class="column is-one-quarter-tablet">
+			<span class='title is-3'>Users</span>			
+					<ul id='clientList' class='box is-info' style='min-height: 15vh; max-height: 50vh; overflow-y: overflow; color:white; background: orange;'>
+					</ul>	
 		  </div>
 		</div>
-		<div class="columns">
+		<div class="columns is-desktop">
 			<form onsubmit='javascript:sendChatMessageToServer()'>
 				<div id='datain' class="column is-12">
 					<input class="input" type="text" placeholder="Text input">
@@ -40,8 +40,6 @@ var clientList = $('#clientList');
 var chat = $('#chat');
 	sendUserNameToServer();
 	socket.emit('initialize', {});
-
-	
 	
   socket.on('updateClientList', function (data) {
 		console.log('Clientlist: ', data);
