@@ -20,10 +20,12 @@
 		  </div>
 		</div>
 		<div class="columns">
+			<form onsubmit='javascript:sendChatMessageToServer()'>
 				<div id='datain' class="column is-12">
-				<input class="input" type="text" placeholder="Text input">
-				<a class="button is-primary" onclick='sendToServer()'>Submit</a>
-		  </div>
+					<input class="input" type="text" placeholder="Text input">
+					<input type="submit" class="button is-primary" />
+		  	</div>
+			</form>
 		</div>
 	</div>
 </body>
@@ -36,8 +38,10 @@
 
 var clientList = $('#clientList');
 var chat = $('#chat');
-
+	sendUserNameToServer();
 	socket.emit('initialize', {});
+
+	
 	
   socket.on('updateClientList', function (data) {
 		console.log('Clientlist: ', data);
@@ -53,8 +57,16 @@ var chat = $('#chat');
 			chat.append('<li>'+message+'</li>');
 		});
   });
+
+	function sendUserNameToServer () {
+		var username = prompt("Please enter your name:", "");
+		if(username == null || username == "") {
+			username = 'Generic User';
+		}
+		socket.emit('setUsername', { username: username});
+	}
   
-  function sendToServer () {
+  function sendChatMessageToServer () {
 		var input = $('input:text').val();
 		socket.emit('datain', { 'input' : input});
 		$('input:text').val('');

@@ -2,6 +2,9 @@ var app = require('http').createServer(handler)
 var io = require('socket.io')(app);
 var fs = require('fs');
 
+var validator = require('validator');
+var xssFilters = require('xss-filters');
+
 app.listen(3131);
 
 var uniqueAnimals = ['behomoth']
@@ -20,6 +23,8 @@ function handler (req, res) {
     res.end(data);
   });}
 
+
+
 console.log('Listening for connections');
 
 io.on('connection', function (socket) {
@@ -31,6 +36,11 @@ io.on('connection', function (socket) {
 		updateClientChat(socket);
 	});		
 
+	socket.on('setUsername', function (data) {
+		//socket.duplicateUsernameCount = clientList.map(function(client) {return client.name = data.username;}).length;	
+		socket.name = data.username;
+	});
+
 	socket.on('disconnect', function() {
       console.log('Client Disconnected ' + socket.id);
       clientList.splice(clientList.indexOf(socket), 1);
@@ -38,9 +48,12 @@ io.on('connection', function (socket) {
    });
   
   socket.on('datain', function (data) {
-    console.log(socket.id +': '+ data.input);
-		clientChat.push(socket.id +': '+ data.input)
-		updateClientChat(socket);	
+		if(data.input !== '' || null){
+			 console.log(socket.name +': '+ data.input);
+			//var name = (socket.duplicateUsernameCount > 0) ? socket.name+"("+socket.duplicateUsernameCount+")": socket.name; 
+			clientChat.push(socket.name +': '+ xssFilters.inHTMLData(data.input))
+			updateClientChat(socket);	
+		}
   });
 });
 
@@ -61,5 +74,5 @@ function updateClientChat (socket) {
 }
 
 function aggregateClientIds () {
-	return clientList.map( function (client) { return client.id;});
+	return clientList.map( function (client) { return client.name;});
 }
