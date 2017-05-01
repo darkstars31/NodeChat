@@ -63,6 +63,11 @@ io.on('connection', function (socket) {
   });
 });
 
+function findClientsByName (name) {
+	return clientList.map( function (client) {
+		return name === client.name;
+	})
+}
 
 function updateClientList (socket) {
 	clientList.forEach( function (client) {
@@ -75,8 +80,7 @@ function updateClientChat (socket) {
 	clientList.forEach( function (client) {
 		client.emit('updateClientChat', {clientChat: clientChat});
 	});
-	console.log(clientList.length + ' Clients Chats have been updated.');
-	
+	console.log(clientList.length + ' Clients Chats have been updated.');	
 }
 
 function aggregateClientIds () {
