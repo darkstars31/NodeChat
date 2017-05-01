@@ -9,7 +9,6 @@ app.listen(3131);
 
 var uniqueAnimals = ['behomoth']
 var clientList = [];
-
 var clientChat = [];
 
 function handler (req, res) {
@@ -37,9 +36,10 @@ io.on('connection', function (socket) {
 	});		
 
 	socket.on('setUsername', function (data) {
-		//socket.duplicateUsernameCount = clientList.map(function(client) {return client.name = data.username;}).length;	
+		socket.duplicateUsernameCount = clientList.map(function(client) {return client.name = data.username;}).length;	
 		socket.name = data.username;
 	});
+	
 
 	socket.on('disconnect', function() {
       console.log('Client Disconnected ' + socket.id);
@@ -48,11 +48,17 @@ io.on('connection', function (socket) {
    });
   
   socket.on('datain', function (data) {
-		if(data.input !== '' || null){
-			 console.log(socket.name +': '+ data.input);
+		if(data.input !== '' || null) {
+			if(data.input.startsWith("/")){
+					//Implement Help Functions
+			} else if (data.input.startsWith("@")) {
+					//Implement Direct Messages
+			} else {
+				 console.log(socket.name +': '+ data.input);
 			//var name = (socket.duplicateUsernameCount > 0) ? socket.name+"("+socket.duplicateUsernameCount+")": socket.name; 
 			clientChat.push(socket.name +': '+ xssFilters.inHTMLData(data.input))
 			updateClientChat(socket);	
+			}
 		}
   });
 });
