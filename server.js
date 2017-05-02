@@ -27,12 +27,13 @@ console.log('NodeChat Server v-Alpha');
 console.log('Listening for connections');
 
 io.on('connection', function (socket) {
+	var self = this;
 	socket.name = '';
 	clientList.push(socket);
 	socket.on('initialize', function (data) {
 		console.log('New Connection with id: ' + socket.id);									  
 		updateClientList(clientList);
-		updateClientChat(clientList, clientChat);
+		updateClientChat([socket], clientChat);
 	});		
 
 	socket.on('setUsername', function (data) {	
@@ -51,8 +52,9 @@ io.on('connection', function (socket) {
 			if(data.input.startsWith("/")){
 					//Implement Help Functions
 			} else if (data.input.startsWith("@")) {	
-				var input = data.input.substr(1);						
-				sendPrivateMessage(socket, input);
+				var input = data.input.substr(1);	
+				var message = parseMessageChunk(input);					
+				sendPrivateMessage(socket, message);
 			} else {
 				console.log(socket.name +': '+ data.input);
 				//var name = (socket.duplicateUsernameCount > 0) ? socket.name+"("+socket.duplicateUsernameCount+")": socket.name; 
@@ -64,20 +66,27 @@ io.on('connection', function (socket) {
   });
 });
 
-function sendPrivateMessage (socket, input) {	
+function sendPrivateMessage (socket, message) {	
 	try {
-		var clients = findClientsByName(input.split(" ")[0]);
-		clients.push(socket);
-		var message = [socket.name +': '+ xssFilters.inHTMLData(input.substr(input.indexOf(' ')+1))];
+		var clients = findClientsByName(message[0]);
+		console.log('Clients Found: ' + clients.length);
+		console.log('PM Sent to clients: '+clients.map((c) => {return c.name}).join(','));
+		var message = ['PM' +socket.name +': '+ xssFilters.inHTMLData(message[1])];
+		
 		updateClientChat(clients, message);
 	} catch ( e ) {
 		console.error("sendPrivateMessage Execption Message: " + e);
+		updateClientChat([socket], "Private Message Failed to Send.");
 	}
 }
 
+function parseMessageChunk (message) {
+	return message.split(' ');
+}
+
 function findClientsByName (name) {
-	return clientList.map( function (client) {
-		if(name.toLowerCase() === client.name.toLowerCase()) {	return client; }	
+	return clientList.map((client) => {
+		if(name.toLowerCase() === client.name.toLowerCase() && client.name) {	return client; }	
 	});
 }
 
