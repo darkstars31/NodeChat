@@ -32,7 +32,7 @@ io.on('connection', function (socket) {
 	socket.on('initialize', function (data) {
 		console.log('New Connection with id: ' + socket.id);									  
 		updateClientList(clientList);
-		//updateClientChat(clientList);
+		updateClientChat(clientList, clientChat);
 	});		
 
 	socket.on('setUsername', function (data) {	
@@ -56,7 +56,7 @@ io.on('connection', function (socket) {
 			} else {
 				console.log(socket.name +': '+ data.input);
 				//var name = (socket.duplicateUsernameCount > 0) ? socket.name+"("+socket.duplicateUsernameCount+")": socket.name; 
-				var message = socket.name +': '+ xssFilters.inHTMLData(data.input);
+				var message = [socket.name +': '+ xssFilters.inHTMLData(data.input)];
 				clientChat.push(message);
 				updateClientChat(clientList, message);	
 			}
@@ -67,12 +67,9 @@ io.on('connection', function (socket) {
 function sendPrivateMessage (socket, input) {	
 	try {
 		var clients = findClientsByName(input.split(" ")[0]);
-		var message = socket.name +': '+ xssFilters.inHTMLData(input.substr(input.indexOf(' ')+1));
+		clients.push(socket);
+		var message = [socket.name +': '+ xssFilters.inHTMLData(input.substr(input.indexOf(' ')+1))];
 		updateClientChat(clients, message);
-		// clients.forEach( function (client) {
-		// 	console.log('client: ',client);
-		// 	client.emit('updatePrivateMessage', {privateMessage: message});
-		// });
 	} catch ( e ) {
 		console.error("sendPrivateMessage Execption Message: " + e);
 	}

@@ -66,16 +66,21 @@ var userCount = $('#user-count');
 	});
 
 	socket.on('updateClientChat', function (data) {		 	
-			chat.append('<li>'+data.message+'</li>');					
-			chatById.scrollTop = chatById.scrollHeight;
+		printMessagesToChatWindow(data);
   });
 
 	socket.on('updatePrivateMessage', function (data) {	
-			if(data.message) {
-				chat.append('<li>'+data.message+'</li>');			
+		printMessagesToChatWindow(data);
+  });
+
+	function printMessagesToChatWindow (data) {
+		if(data.message) {
+				data.message.forEach( function (message) {
+					chat.append('<li>'+message+'</li>');	
+				});		
 				chatById.scrollTop = chatById.scrollHeight;
 			}
-  });
+	}
 
 	function sendUserNameToServer () {
 		
