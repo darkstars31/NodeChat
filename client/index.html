@@ -3,21 +3,20 @@
 
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>SocketChat</title>
-	<link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="./css/font-awesome.min.css" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.0/css/bulma.css" />
 </head>
 
-
 <body class='container'>
-	<div class='section'>
+	<div class='' style="padding: 1em;">
 		<div class="columns is-three-quarter-tablet">
 		  <div id='dataout' class="column">
-			<span class='title is-3'>Chat</span> | <span id="connection-status">Offline</span> | <span id="user-count"></span>				
+			<span class='title is-2'>Chat</span> | <span id="connection-status">Offline</span> | <span id="user-count"></span>				
 					<ul id='chat' class='box' style='min-height: 62vh; max-height: 80vh; overflow-y: auto; color:white; background: teal;'>
 					</ul>			
 		  </div>
 			 <div id='dataout' class="column is-one-quarter-tablet is-hidden-mobile">
-			<span class='title is-3'>Users</span>			
+			<span class='title is-2'><i class="fa fa-users fa-3x" aria-hidden="true" style="line-height: 2.2em;"></i> Users</span>			
 					<ul id='clientList' class='box is-info' style='min-height: 62vh; max-height: 80vh; overflow-y: auto; color:white; background: orange;'>
 					</ul>	
 		  </div>
@@ -29,9 +28,9 @@
 						<input class="input" type="text" placeholder="Message">
 					</p>
 					<p class="control">
-						<input type="submit" class="button is-primary" />
+						<button class='button is-primary' onclick='javascript:sendChatMessageToServer();'><i class='fa fa-paper-plane toni aria-hiddne='true really your worried about screen readers?''></i></button>
 					</p>			
-					</div>
+				</div>
 			</form>
 		</div>
 	</div>
@@ -44,6 +43,7 @@
 
 var clientList = $('#clientList');
 var chat = $('#chat');
+var chatById = document.getElementById('chat');
 var connectionStatus = $('#connection-status');
 var userCount = $('#user-count');
 	sendUserNameToServer();
@@ -54,7 +54,7 @@ var userCount = $('#user-count');
 		clientList.html('');
 		userCount.html('Users: ' + data.clientIdList.length);
 		data.clientIdList.forEach( function (client) {
-			clientList.append('<li>'+client+'</li>')
+			clientList.append('<li> <i class="fa fa-user" aria-hidden="true" style="line-height: 1em;"></i> '+client+'</li>')
 		});
   });
 
@@ -65,13 +65,16 @@ var userCount = $('#user-count');
 		connectionStatus.html('Offline')
 	});
 
-	 socket.on('updateClientChat', function (data) {
-		 	chat.html('');
-			data.clientChat.forEach( function (message) {
-				chat.append('<li>'+message+'</li>');
-			});
-			var x = document.getElementById('chat');
-			x.scrollTop = x.scrollHeight;
+	socket.on('updateClientChat', function (data) {		 	
+			chat.append('<li>'+data.message+'</li>');					
+			chatById.scrollTop = chatById.scrollHeight;
+  });
+
+	socket.on('updatePrivateMessage', function (data) {	
+			if(data.message) {
+				chat.append('<li>'+data.message+'</li>');			
+				chatById.scrollTop = chatById.scrollHeight;
+			}
   });
 
 	function sendUserNameToServer () {
