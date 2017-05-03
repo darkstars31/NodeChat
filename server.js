@@ -67,16 +67,18 @@ io.on('connection', function (socket) {
 });
 
 function sendPrivateMessage (socket, message) {	
+
+	var clients = findClientsByName(message[0]);
 	try {
-		var clients = findClientsByName(message[0]);
-		console.log('Clients Found: ' + clients.length);
-		console.log('PM Sent to clients: '+clients.map((c) => {return c.name}).join(','));
-		var message = ['PM' +socket.name +': '+ xssFilters.inHTMLData(message[1])];
-		
+		console.log('Clients Found ('+ clients.length+'): ' + clients.map((c) => {return c.name}).join(','));
+		var message = ['PM' +socket.name +': '+ xssFilters.inHTMLData(message[1])];	
 		updateClientChat(clients, message);
 	} catch ( e ) {
-		console.error("sendPrivateMessage Execption Message: " + e);
-		updateClientChat([socket], "Private Message Failed to Send.");
+		var error = new Error();
+		console.error("sendPrivateMessage Execption Message: " + e + " stacktrace: " + error);
+		fs.appendFile('log.txt', 'ERROR: ' + e, function (err) {if(err) throw err; console.log('Saved!');});
+		fs.appendFile('log.txt', 'Stack: ' + error, function (err) {if(err) throw err; console.log('Saved!');});
+		updateClientChat([socket], ["Private Message Failed to Send."]);
 	}
 }
 
@@ -86,7 +88,7 @@ function parseMessageChunk (message) {
 
 function findClientsByName (name) {
 	return clientList.map((client) => {
-		if(name.toLowerCase() === client.name.toLowerCase() && client.name) {	return client; }	
+		if(name.toLowerCase() === client.name.toLowerCase() && client.name) {	console.log('Find:' ,client); return client; }	
 	});
 }
 
