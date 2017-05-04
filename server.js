@@ -50,11 +50,11 @@ io.on('connection', function (socket) {
   socket.on('datain', function (data) {
 		if(data.input !== '' || null) {
 			if(data.input.startsWith("/")){
-					//Implement Help Functions
-			} else if (data.input.startsWith("@")) {	
-				var input = data.input.substr(1);	
-				var message = parseMessageChunk(input);					
-				sendPrivateMessage(socket, message);
+				var input = data.input.substr(1);
+			} else if (data.input.startsWith("@")) {					
+				var name = parseMessageChunk(data.input.substr(1))[0];	
+				var message = data.input.substr(name.length + 1);		
+				sendPrivateMessage(socket, name, message);
 			} else {
 				console.log(socket.name +': '+ data.input);
 				//var name = (socket.duplicateUsernameCount > 0) ? socket.name+"("+socket.duplicateUsernameCount+")": socket.name; 
@@ -66,13 +66,16 @@ io.on('connection', function (socket) {
   });
 });
 
-function sendPrivateMessage (socket, message) {	
-
-	var clients = findClientsByName(message[0]);
+function sendPrivateMessage (socket, name, message) {	
+	var clients = findClientsByName(name);
+	if(clients.length < 1){
+		updateClientChat([socket], ["No user found with the name "+name]);
+		return;
+	}
 	clients.push(socket);
 	try {
-		console.log('Clients Found ('+ clients.length+'): ' + clients.map((c) => {return c.name}).join(','));
-		var message = [socket.name +': <i>'+ xssFilters.inHTMLData(message[1]) + '</i>'];	
+		
+		var message = ['<i>'+socket.name +' w/: '+ xssFilters.inHTMLData(message) + '</i>'];	
 		updateClientChat(clients, message);
 	} catch ( e ) {
 		var error = new Error();
@@ -90,9 +93,6 @@ function findClientsByName (name) {
 	return clientList.filter((client) => {
 		return client.name && name === client.name; 	
 	});
-		// return clientList.filter((client) => {
-	// 	if(client && client.name && name === client.name) { return client; }	
-	// });
 }
 
 function updateClientList (clients) {
