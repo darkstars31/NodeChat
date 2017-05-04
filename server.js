@@ -69,15 +69,15 @@ io.on('connection', function (socket) {
 function sendPrivateMessage (socket, message) {	
 
 	var clients = findClientsByName(message[0]);
+	clients.push(socket);
 	try {
 		console.log('Clients Found ('+ clients.length+'): ' + clients.map((c) => {return c.name}).join(','));
-		var message = ['PM' +socket.name +': '+ xssFilters.inHTMLData(message[1])];	
+		var message = [socket.name +': <i>'+ xssFilters.inHTMLData(message[1]) + '</i>'];	
 		updateClientChat(clients, message);
 	} catch ( e ) {
 		var error = new Error();
 		console.error("sendPrivateMessage Execption Message: " + e + " stacktrace: " + error);
-		fs.appendFile('log.txt', 'ERROR: ' + e, function (err) {if(err) throw err; console.log('Saved!');});
-		fs.appendFile('log.txt', 'Stack: ' + error, function (err) {if(err) throw err; console.log('Saved!');});
+		log(clients);
 		updateClientChat([socket], ["Private Message Failed to Send."]);
 	}
 }
@@ -87,9 +87,12 @@ function parseMessageChunk (message) {
 }
 
 function findClientsByName (name) {
-	return clientList.map((client) => {
-		if(name.toLowerCase() === client.name.toLowerCase() && client.name) {	console.log('Find:' ,client); return client; }	
+	return clientList.filter((client) => {
+		return client.name && name === client.name; 	
 	});
+		// return clientList.filter((client) => {
+	// 	if(client && client.name && name === client.name) { return client; }	
+	// });
 }
 
 function updateClientList (clients) {
@@ -104,6 +107,12 @@ function updateClientChat (clients, message) {
 		client.emit('updateClientChat', {message: message});
 	});
 	console.log(clientList.length + ' Clients Chats have been updated.');	
+}
+
+function log(message) {
+	var file = 'log.txt';
+	fs.appendFile('log.txt', 'ERROR: ' , message, function (err) {if(err) throw err;});
+	fs.appendFile('log.txt', '\r\n', function (err) {if(err) throw err;});
 }
 
 function aggregateClientIds () {
