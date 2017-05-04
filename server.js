@@ -49,12 +49,10 @@ io.on('connection', function (socket) {
   
   socket.on('datain', function (data) {
 		if(data.input !== '' || null) {
-			if(data.input.startsWith("/")){
-				var input = data.input.substr(1);
-			} else if (data.input.startsWith("@")) {					
-				var name = parseMessageChunk(data.input.substr(1))[0];	
-				var message = data.input.substr(name.length + 1);		
-				sendPrivateMessage(socket, name, message);
+			if(data.input.startsWith("/")){				
+				handleUserCommands(socket, data.input);
+			} else if (data.input.startsWith("@")) {										
+				sendPrivateMessage(socket, data.input);
 			} else {
 				console.log(socket.name +': '+ data.input);
 				//var name = (socket.duplicateUsernameCount > 0) ? socket.name+"("+socket.duplicateUsernameCount+")": socket.name; 
@@ -66,22 +64,39 @@ io.on('connection', function (socket) {
   });
 });
 
-function sendPrivateMessage (socket, name, message) {	
+function sendPrivateMessage (socket, input) {	
+	var name = parseMessageChunk(input.substr(1))[0];	
+	var message = input.substr(name.length + 1);
 	var clients = findClientsByName(name);
 	if(clients.length < 1){
 		updateClientChat([socket], ["No user found with the name "+name]);
 		return;
 	}
 	clients.push(socket);
-	try {
-		
-		var message = ['<i>'+socket.name +' w/: '+ xssFilters.inHTMLData(message) + '</i>'];	
+	try {	
+		var message = ['<i>'+socket.name +' w/ '+name+': '+ xssFilters.inHTMLData(message) + '</i>'];	
 		updateClientChat(clients, message);
 	} catch ( e ) {
 		var error = new Error();
 		console.error("sendPrivateMessage Execption Message: " + e + " stacktrace: " + error);
 		log(clients);
 		updateClientChat([socket], ["Private Message Failed to Send."]);
+	}
+}
+
+function handleUserCommands (socket, input) {
+	var command = parseMessageChunk(input.substr(1))[0];
+	switch(command) {
+		case 'w': sendPrivateMessage(socket, input.substr(2)); break;
+		case 'whoami': updateClientChat([socket], ["You are "+ socket.name]); break;
+		case 'time': updateClientChat([socket], ["Current Timestamp: "+ new Date().getTime()]); break;
+		case 'help': updateClientChat([socket], ["Availible Commands: /help, /whoami, /time, /w (alias @username), @username"]);
+					break;
+		case '?': 
+					break;
+		default: updateClientChat([socket], ["Invalid Command, type /help to get more information."]);
+					break;
+
 	}
 }
 
