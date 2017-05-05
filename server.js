@@ -90,7 +90,10 @@ function handleUserCommands (socket, input) {
 		case 'w': sendPrivateMessage(socket, input.substr(2)); break;
 		case 'slap': updateClientChat(clientList, [socket.name + " slaps " + parseMessageChunk(input)[1] + " with a " + (parseMessageChunk(input)[2] ? parseMessageChunk(input)[2] : "fish")]); break;
 		case 'roll': updateClientChat(clientList, [socket.name + " rolled " + Math.floor(Math.random() * 6 + 1)]); break;
-		case 'gify': updateClientChat(clientList, [socket.name + ": " + gify(input.substr(5))]); break;
+		case 'giphy': giphy(input.substr(5)).then(function (data) { 
+								var response = data[0];
+								updateClientChat(clientList, [socket.name + ": <iframe src="+response.embed_url+" />"]);
+							}); break;
 		case 'whoami': updateClientChat([socket], ["You are "+ socket.name]); break;
 		case 'users': updateClientChat([socket], ["Users: " +aggregateClientIds().join(', ')]); break;
 		case 'time': updateClientChat([socket], ["Current Timestamp: "+ new Date().getTime()]); break;
@@ -113,15 +116,17 @@ function findClientsByName (name) {
 	});
 }
 
-function gify(searchTerm) {
-	var result = '';
-	var url = "http://api.giphy.com/v1/gifs/search?q="+parseMessageChunk(searchTerm).join("+")+"&limit=1&api_key=dc6zaTOxFJmzC";
-	http.get(url, function (response) {
-		var data = '';
-		response.on('data', function (stream) {	data +=stream;});
-		response.on('end', function () {result = JSON.parse(data);});
+function giphy(searchTerm) {
+	var dfd = new Promise(function (resolve, reject) {
+		var url = "http://api.giphy.com/v1/gifs/search?q="+parseMessageChunk(searchTerm).join("+")+"&limit=1&api_key=dc6zaTOxFJmzC";
+			http.get(url, function (response) {
+				var data = '';
+				response.on('data', function (stream) {	data +=stream;});
+				response.on('end', function () { resolve(JSON.parse(data).data)});
+			});
 	});
-	//return "<img src="+result[0].embed_url+" />";
+
+	return dfd;
 }
 
 function updateClientList (clients) {
