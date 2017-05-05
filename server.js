@@ -1,4 +1,5 @@
-var app = require('http').createServer(handler)
+var http = require('http');
+var app = http.createServer(handler);
 var io = require('socket.io')(app);
 var fs = require('fs');
 
@@ -7,7 +8,6 @@ var xssFilters = require('xss-filters');
 
 app.listen(3131);
 
-var uniqueAnimals = ['behomoth']
 var clientList = [];
 var clientChat = [""];
 
@@ -88,12 +88,15 @@ function handleUserCommands (socket, input) {
 	var command = parseMessageChunk(input.substr(1))[0];
 	switch(command) {
 		case 'w': sendPrivateMessage(socket, input.substr(2)); break;
+		case 'slap': updateClientChat(clientList, [socket.name + " slaps " + parseMessageChunk(input)[1] + " with a " + (parseMessageChunk(input)[2] ? parseMessageChunk(input)[2] : "fish")]); break;
+		case 'roll': updateClientChat(clientList, [socket.name + " rolled " + Math.floor(Math.random() * 6 + 1)]); break;
+		case 'gify': updateClientChat(clientList, [socket.name + ": " + gify(input.substr(5))]); break;
 		case 'whoami': updateClientChat([socket], ["You are "+ socket.name]); break;
+		case 'users': updateClientChat([socket], ["Users: " +aggregateClientIds().join(', ')]); break;
 		case 'time': updateClientChat([socket], ["Current Timestamp: "+ new Date().getTime()]); break;
-		case 'help': updateClientChat([socket], ["Availible Commands: /help, /whoami, /time, /w (alias @username), @username"]);
-					break;
-		case '?': 
-					break;
+		case '?':
+		case 'help': updateClientChat([socket], ["Availible Commands: /help, /slap, /roll, /users, /whoami, /time, /w (alias @username), @username"]);
+					break;;
 		default: updateClientChat([socket], ["Invalid Command, type /help to get more information."]);
 					break;
 
@@ -108,6 +111,17 @@ function findClientsByName (name) {
 	return clientList.filter((client) => {
 		return client.name && name === client.name; 	
 	});
+}
+
+function gify(searchTerm) {
+	var result = '';
+	var url = "http://api.giphy.com/v1/gifs/search?q="+parseMessageChunk(searchTerm).join("+")+"&limit=1&api_key=dc6zaTOxFJmzC";
+	http.get(url, function (response) {
+		var data = '';
+		response.on('data', function (stream) {	data +=stream;});
+		response.on('end', function () {result = JSON.parse(data);});
+	});
+	//return "<img src="+result[0].embed_url+" />";
 }
 
 function updateClientList (clients) {

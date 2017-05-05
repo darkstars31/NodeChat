@@ -82,13 +82,9 @@ var userCount = $('#user-count');
 	}
 
 	function sendUserNameToServer () {
-		
-		var username = localStorage.getItem('username') || prompt("Please enter your name:", "");
-		if(username == null || username == "") {
-			username = 'Generic User';
-		}
-		socket.emit('setUsername', { username: username});
-		localStorage.setItem('username', username);
+			var username = localStorage.getItem('username') || prompt("Please enter your name:", "");		
+			socket.emit('setUsername', { username: username});
+			localStorage.setItem('username', username);
 	}
   
   function sendChatMessageToServer () {
