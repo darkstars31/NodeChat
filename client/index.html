@@ -49,15 +49,23 @@
 	var userCount = $('#user-count');
 	var clientName = localStorage.getItem('username');
 	var input = $('input:text');
-	var chatHistoryIndex = 0;
-	socket.emit('initialize', {});
+	var chatHistoryIndex = -1;
 	sendUserNameToServer();
+	socket.emit('initialize', {});
 
 	$(document).keydown(function (e) {
 		switch(e.which) {
-			case 38: 
-						chatHistoryIndex++;
-						input.val(chatHistory[chatHistoryIndex])
+			case 38: 			
+						if(chatHistoryIndex < chatHistory.length) {
+							chatHistoryIndex++;
+						}
+						input.val(chatHistory[chatHistoryIndex]);
+						break;
+			case 40:
+						if(chatHistory > 0) {
+							chatHistoryIndex--;
+						}
+						input.val(chatHistory[chatHistoryIndex]);
 						break;
 		}
 	});
@@ -109,10 +117,13 @@
 	}
   
   function sendChatMessageToServer () {
-		socket.emit('datain', { 'input' : input.val()});
-		chatHistory.unshift(input.val());
-		chatHistoryIndex = 0;
-		input.val('');
+				socket.emit('datain', { 'input' : input.val()});
+				if(input.val()) {
+					chatHistory.unshift(input.val());
+					console.log(chatHistory);
+				}
+				chatHistoryIndex = 0;
+				input.val('');
   }
 </script>
 
