@@ -4,6 +4,7 @@
 	<title>SocketChat</title>
 	<link rel="stylesheet" href="./css/font-awesome.min.css" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.0/css/bulma.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/balloon-css/0.4.0/balloon.min.css">
 </head>
 
 <body class='container'>
@@ -38,22 +39,42 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
 <script>
-  var socket = io('http://localhost:3131');	
+	var socket = io('http://localhost:3131');	
 
-var clientList = $('#clientList');
-var chat = $('#chat');
-var chatById = document.getElementById('chat');
-var connectionStatus = $('#connection-status');
-var userCount = $('#user-count');
-	sendUserNameToServer();
+	var clientList = $('#clientList');
+	var chat = $('#chat');
+	var chatHistory = [];
+	var chatById = document.getElementById('chat');
+	var connectionStatus = $('#connection-status');
+	var userCount = $('#user-count');
+	var clientName = localStorage.getItem('username');
+	var input = $('input:text');
+	var chatHistoryIndex = 0;
 	socket.emit('initialize', {});
+	sendUserNameToServer();
+
+	$(document).keydown(function (e) {
+		switch(e.which) {
+			case 38: 
+						chatHistoryIndex++;
+						input.val(chatHistory[chatHistoryIndex])
+						break;
+		}
+	});
 	
   socket.on('updateClientList', function (data) {
 		console.log('Clientlist: ', data);
 		clientList.html('');
 		userCount.html('Users: ' + data.clientIdList.length);
 		data.clientIdList.forEach( function (client) {
-			clientList.append('<li> <i class="fa fa-user" aria-hidden="true" style="line-height: 1em;"></i> '+client+'</li>')
+			console.log('client: ' + clientName);
+			console.log('client: ' + client);
+			if(client == clientName){
+				clientList.append('<li> <i class="fa fa-user" aria-hidden="true" style="line-height: 1em;"></i> '+client+' (Me)</li>');
+			} else {
+				clientList.append('<li> <i class="fa fa-user" aria-hidden="true" style="line-height: 1em;"></i> '+client+'</li>');
+			}
+			
 		});
   });
 
@@ -88,9 +109,10 @@ var userCount = $('#user-count');
 	}
   
   function sendChatMessageToServer () {
-		var input = $('input:text').val();
-		socket.emit('datain', { 'input' : input});
-		$('input:text').val('');
+		socket.emit('datain', { 'input' : input.val()});
+		chatHistory.unshift(input.val());
+		chatHistoryIndex = 0;
+		input.val('');
   }
 </script>
 
