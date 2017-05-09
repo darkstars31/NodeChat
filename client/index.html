@@ -62,7 +62,7 @@
 						input.val(chatHistory[chatHistoryIndex]);
 						break;
 			case 40:
-						if(chatHistory > 0) {
+						if(chatHistoryIndex > 0) {
 							chatHistoryIndex--;
 						}
 						input.val(chatHistory[chatHistoryIndex]);
@@ -118,11 +118,11 @@
   
   function sendChatMessageToServer () {
 				socket.emit('datain', { 'input' : input.val()});
-				if(input.val()) {
+				if(input.val() && input.val() != chatHistory[0]) {
 					chatHistory.unshift(input.val());
 					console.log(chatHistory);
 				}
-				chatHistoryIndex = 0;
+				chatHistoryIndex = -1;
 				input.val('');
   }
 </script>
