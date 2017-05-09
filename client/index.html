@@ -24,6 +24,7 @@
 		<div>
 			<form onsubmit='javascript:sendChatMessageToServer()' action="javascript:void(0);">
 				<div class="field has-addons">
+					<div id='input-tooltip' data-balloon-pos="down"></div>
 					<p class="control is-expanded">
 						<input class="input" type="text" placeholder="Message">
 					</p>
@@ -41,7 +42,8 @@
 <script>
 	var socket = io('http://localhost:3131');	
 
-	var clientList = $('#clientList');
+	var clientListDOM = $('#clientList');
+	var clientList = [];
 	var chat = $('#chat');
 	var chatHistory = [];
 	var chatById = document.getElementById('chat');
@@ -49,6 +51,7 @@
 	var userCount = $('#user-count');
 	var clientName = localStorage.getItem('username');
 	var input = $('input:text');
+	var inputTooltip = $('#input-tooltip');
 	var chatHistoryIndex = -1;
 	sendUserNameToServer();
 	socket.emit('initialize', {});
@@ -69,20 +72,27 @@
 						break;
 		}
 	});
+
+	input.on('change', function () {
+			if(input.val()[0] == '@'){
+				inputTooltip.attr('data-balloon-visible', '');
+				inputTooltip.attr('data-balloon', clientList.join(', @'));
+			} else {
+				inputTooltip.removeAttr('data-balloon-visible')
+				inputTooltip.attr('data-balloon', '');
+			}
+	});
 	
   socket.on('updateClientList', function (data) {
-		console.log('Clientlist: ', data);
-		clientList.html('');
+		clientList = data.clientIdList;
+		clientListDOM.html('');
 		userCount.html('Users: ' + data.clientIdList.length);
 		data.clientIdList.forEach( function (client) {
-			console.log('client: ' + clientName);
-			console.log('client: ' + client);
 			if(client == clientName){
-				clientList.append('<li><span style="position: relative;left: -3px;"><i class="fa fa-user-circle-o" aria-hidden="true" style="line-height: 1em;"></i></span> '+client+'</li>');
+				clientListDOM.append('<li><span style="position: relative;left: -3px;"><i class="fa fa-user-circle-o" aria-hidden="true" style="line-height: 1em;"></i></span> '+client+'</li>');
 			} else {
-				clientList.append('<li><i class="fa fa-user" aria-hidden="true" style="line-height: 1em;"></i> '+client+'</li>');
-			}
-			
+				clientListDOM.append('<li><i class="fa fa-user" aria-hidden="true" style="line-height: 1em;"></i> '+client+'</li>');
+			}		
 		});
   });
 
