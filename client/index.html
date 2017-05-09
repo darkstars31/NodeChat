@@ -73,10 +73,15 @@
 		}
 	});
 
-	input.on('change', function () {
-			if(input.val()[0] == '@'){
-				inputTooltip.attr('data-balloon-visible', '');
-				inputTooltip.attr('data-balloon', clientList.join(', @'));
+	input.keypress(function () {
+			console.log(input.val());
+			if(input.val().startsWith('@')){
+				var whisperList = clientList.join(', @');//clientList.filter(function (c) {return c != clientName;}).join(', @');
+				console.log(whisperList);
+				if(whisperList > 0){
+					inputTooltip.attr('data-balloon-visible', '');
+					inputTooltip.attr('data-balloon', 'Whisper: @'+ whisperList);
+				}
 			} else {
 				inputTooltip.removeAttr('data-balloon-visible')
 				inputTooltip.attr('data-balloon', '');
