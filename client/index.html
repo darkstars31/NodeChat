@@ -78,9 +78,9 @@
 			console.log('client: ' + clientName);
 			console.log('client: ' + client);
 			if(client == clientName){
-				clientList.append('<li> <i class="fa fa-user" aria-hidden="true" style="line-height: 1em;"></i> '+client+' (Me)</li>');
+				clientList.append('<li><span style="position: relative;left: -3px;"><i class="fa fa-user-circle-o" aria-hidden="true" style="line-height: 1em;"></i></span> '+client+'</li>');
 			} else {
-				clientList.append('<li> <i class="fa fa-user" aria-hidden="true" style="line-height: 1em;"></i> '+client+'</li>');
+				clientList.append('<li><i class="fa fa-user" aria-hidden="true" style="line-height: 1em;"></i> '+client+'</li>');
 			}
 			
 		});
