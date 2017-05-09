@@ -24,7 +24,7 @@
 		<div>
 			<form onsubmit='javascript:sendChatMessageToServer()' action="javascript:void(0);">
 				<div class="field has-addons">
-					<div id='input-tooltip' data-balloon-pos="down"></div>
+					<div id='input-tooltip' data-balloon-pos="down" style='left: 1.2em;'></div>
 					<p class="control is-expanded">
 						<input class="input" type="text" placeholder="Message">
 					</p>
@@ -73,18 +73,18 @@
 		}
 	});
 
-	input.keypress(function () {
-			console.log(input.val());
+	input.on('keyup', function () {
 			if(input.val().startsWith('@')){
-				var whisperList = clientList.join(', @');//clientList.filter(function (c) {return c != clientName;}).join(', @');
-				console.log(whisperList);
-				if(whisperList > 0){
-					inputTooltip.attr('data-balloon-visible', '');
-					inputTooltip.attr('data-balloon', 'Whisper: @'+ whisperList);
+				var whisperList = clientList.filter(function (c) {return c != clientName});
+				inputTooltip.attr('data-balloon-visible', '');
+				if(whisperList.length > 0){
+					inputTooltip.attr('data-balloon', 'Whisper: @'+ whisperList.join(', @'));
 				}
 			} else {
-				inputTooltip.removeAttr('data-balloon-visible')
-				inputTooltip.attr('data-balloon', '');
+				inputTooltip.removeAttr('data-balloon-visible');
+				setTimeout(function () {
+					inputTooltip.attr('data-balloon', '');
+				}, 250);
 			}
 	});
 	
@@ -102,10 +102,10 @@
   });
 
 	socket.on('connect', function () {
-		connectionStatus.html('Online')
+		connectionStatus.html('<span style="color: green;">Online</span>')
 	});
 	socket.on('disconnect', function () {
-		connectionStatus.html('Offline')
+		connectionStatus.html('<span style="color: red;">Offline</span>')
 	});
 
 	socket.on('updateClientChat', function (data) {		 	
