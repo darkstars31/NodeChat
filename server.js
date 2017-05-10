@@ -89,8 +89,10 @@ function handleUserCommands (socket, input) {
 	switch(command) {
 		case 'w': sendPrivateMessage(socket, input.substr(2)); break;
 		case 'slap': updateClientChat(clientList, [socket.name + " slaps " + parseMessageChunk(input)[1] + " with a " + (parseMessageChunk(input)[2] ? parseMessageChunk(input)[2] : "fish")]); break;
-		case 'roll':  try { updateClientChat(clientList, [socket.name + " " + rolldice(parseMessageChunk(input)[1])]); } catch (e) {updateClientChat(socket, ['Invalid roll, parameters required to be in the form of \'1d6\' or \'3d20\'']);}
-					break;
+		case 'roll':  try { updateClientChat(clientList, [socket.name + " " + rolldice(parseMessageChunk(input)[1])]); } 
+						catch (e) {updateClientChat(socket, ['Invalid roll, parameters required to be in the form of \'1d6\' or \'3d20\'']);} break;
+		case 'rockpapersissors':
+		case 'rps': updateClientChat([socket], ["Not Implemented Yet."]); break;
 		case 'giphy': giphy(input.substr(5)).then(function (data) { 
 								var response = data[0];
 								updateClientChat(clientList, [socket.name + ": <iframe src="+response.embed_url+" />"]);
