@@ -89,9 +89,9 @@ function handleUserCommands (socket, input) {
 	switch(command) {
 		case 'w': sendPrivateMessage(socket, input.substr(2)); break;
 		case 'slap': updateClientChat(clientList, [socket.name + " slaps " + parseMessageChunk(input)[1] + " with a " + (parseMessageChunk(input)[2] ? parseMessageChunk(input)[2] : "fish")]); break;
-		case 'roll':  try { updateClientChat(clientList, [socket.name + ": " + rolldice(input.substr(4))]); } catch (e) {updateClientChat(socket, ['Invalid roll, parameters required to be in the form of \'1d6\' or \'3d20\'']);}
+		case 'roll':  try { updateClientChat(clientList, [socket.name + " " + rolldice(input.substr(5))]); } catch (e) {updateClientChat(socket, ['Invalid roll, parameters required to be in the form of \'1d6\' or \'3d20\'']);}
 					break;
-		case 'giphy': giphy(input.substr(5)).then(function (data) { 
+		case 'giphy': giphy(input.substr(6)).then(function (data) { 
 								var response = data[0];
 								updateClientChat(clientList, [socket.name + ": <iframe src="+response.embed_url+" />"]);
 							}); break;
@@ -123,7 +123,7 @@ function rolldice(diceType) {
 	for(var i = 0; i < rollSplit[0];i++){
 		rolls.push(Math.floor(Math.random()* rollSplit[1] + 1));
 	}
-	return " rolled "+diceType+" "+ rolls.join(' + ') +" Total: "+ rolls.reduce(function (a,b) {return a+b}, 0);
+	return "rolled "+diceType+" "+ rolls.join(' + ') +" Total: "+ rolls.reduce(function (a,b) {return a+b}, 0);
 }
 
 function giphy(searchTerm) {
