@@ -89,9 +89,9 @@ function handleUserCommands (socket, input) {
 	switch(command) {
 		case 'w': sendPrivateMessage(socket, input.substr(2)); break;
 		case 'slap': updateClientChat(clientList, [socket.name + " slaps " + parseMessageChunk(input)[1] + " with a " + (parseMessageChunk(input)[2] ? parseMessageChunk(input)[2] : "fish")]); break;
-		case 'roll':  try { updateClientChat(clientList, [socket.name + " " + rolldice(input.substr(5))]); } catch (e) {updateClientChat(socket, ['Invalid roll, parameters required to be in the form of \'1d6\' or \'3d20\'']);}
+		case 'roll':  try { updateClientChat(clientList, [socket.name + " " + rolldice(parseMessageChunk(input)[1])]); } catch (e) {updateClientChat(socket, ['Invalid roll, parameters required to be in the form of \'1d6\' or \'3d20\'']);}
 					break;
-		case 'giphy': giphy(input.substr(6)).then(function (data) { 
+		case 'giphy': giphy(input.substr(5)).then(function (data) { 
 								var response = data[0];
 								updateClientChat(clientList, [socket.name + ": <iframe src="+response.embed_url+" />"]);
 							}); break;
@@ -118,12 +118,20 @@ function findClientsByName (name) {
 }
 
 function rolldice(diceType) {
+	diceType = diceType ? diceType : "1d6";
 	var rollSplit = diceType.split('d');
+	rollSplit[0] = rollSplit[0] ? rollSplit[0] : 1;
 	var rolls = [];
+	var grandTotalString = '';
 	for(var i = 0; i < rollSplit[0];i++){
-		rolls.push(Math.floor(Math.random()* rollSplit[1] + 1));
+		rolls.push(Math.abs(Math.floor(Math.random()* rollSplit[1] + 1)));
 	}
-	return "rolled "+diceType+" "+ rolls.join(' + ') +" Total: "+ rolls.reduce(function (a,b) {return a+b}, 0);
+	if(rolls.length > 1){
+		grandTotalString = " = "+ rolls.reduce(function (a,b) {return a+b}, 0)
+	} else if (rolls.length == 0) {
+		rolls[0] = "wtf did you just roll?";
+	}
+	return "rolled "+diceType+" -> "+ rolls.join(' + ') + grandTotalString;
 }
 
 function giphy(searchTerm) {
