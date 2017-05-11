@@ -1,32 +1,36 @@
 var socket = io(silmarillion.remoteServer +":"+silmarillion.port);	
 
-	var clientListDOM = $('#clientList');
+	var clientListDOM = $('#clientList'),
+		input = $('input:text'),
+		inputTooltip = $('#input-tooltip'),
+		userCount = $('#user-count'),
+		connectionStatus = $('#connection-status'),
+		chat = $('#chat');
+
 	var clientList = [];
-	var chat = $('#chat');
 	var chatHistory = [];
 	var chatById = document.getElementById('chat');
-	var connectionStatus = $('#connection-status');
-	var userCount = $('#user-count');
 	var clientName = localStorage.getItem('username');
-	var input = $('input:text');
-	var inputTooltip = $('#input-tooltip');
 	var chatHistoryIndex = -1;
 	sendUserNameToServer();
 	socket.emit('initialize', {});
 
 	$(document).keydown(function (e) {
 		switch(e.which) {
-			case 38: 			
+			case 38: //uparrow			
 						if(chatHistoryIndex < chatHistory.length) {
 							chatHistoryIndex++;
 						}
 						input.val(chatHistory[chatHistoryIndex]);
 						break;
-			case 40:
+			case 40: //downarrow
 						if(chatHistoryIndex > 0) {
 							chatHistoryIndex--;
+							input.val(chatHistory[chatHistoryIndex]);
+						} else {
+							input.val('');
 						}
-						input.val(chatHistory[chatHistoryIndex]);
+						
 						break;
 		}
 	});
