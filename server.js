@@ -11,6 +11,9 @@ app.listen(3131);
 var clientList = [];
 var clientChat = [""];
 
+var RockPaperSissorsGameIsActive = false;
+var RockPaperSissorsPlayersAndMoves = [];
+
 function handler (req, res) {
   fs.readFile(__dirname + '/index.html',
   function (err, data) {
@@ -92,7 +95,10 @@ function handleUserCommands (socket, input) {
 		case 'roll':  try { updateClientChat(clientList, [socket.name + " " + rolldice(parseMessageChunk(input)[1])]); } 
 						catch (e) {updateClientChat(socket, ['Invalid roll, parameters required to be in the form of \'1d6\' or \'3d20\'']);} break;
 		case 'rockpapersissors':
-		case 'rps': updateClientChat([socket], ["Not Implemented Yet."]); break;
+		case 'rps': rockpapersissors(socket, parseMessageChunk(input)[1]); break;
+		case 'rock': rockpapersissors(socket, parseMessageChunk(input)[0]); break;
+		case 'paper': rockpapersissors(socket, parseMessageChunk(input)[0]); break;
+		case 'sissors': rockpapersissors(socket, parseMessageChunk(input)[0]); break;
 		case 'giphy': giphy(input.substr(5)).then(function (data) { 
 								var response = data[0];
 								updateClientChat(clientList, [socket.name + ": <iframe src="+response.embed_url+" />"]);
@@ -101,11 +107,10 @@ function handleUserCommands (socket, input) {
 		case 'users': updateClientChat([socket], ["Users: " +aggregateClientIds().join(', ')]); break;
 		case 'time': updateClientChat([socket], ["Current Timestamp: "+ new Date().getTime()]); break;
 		case '?':
-		case 'help': updateClientChat([socket], ["Availible Commands: /help, /slap, /roll, /users, /whoami, /time, /w (alias @username), @username"]);
+		case 'help': updateClientChat([socket], ["Availible Commands: /help, /slap, /roll, /rockpapersissors (/rps), /users, /whoami, /time, /w (alias @username), @username"]);
 					break;;
 		default: updateClientChat([socket], ["Invalid Command, type /help to get more information."]);
 					break;
-
 	}
 }
 
@@ -117,6 +122,49 @@ function findClientsByName (name) {
 	return clientList.filter((client) => {
 		return client.name && name === client.name; 	
 	});
+}
+
+function rockpapersissors(socket, input) {
+	if(!RockPaperSissorsGameIsActive) {
+		RockPaperSissorsGameIsActive = true;
+		updateClientChat(clientList, [socket.name + " has started a game of RockPaperSissors! You have 20 seconds to play."]);
+		setTimeout( () => {
+			for(var player1 in RockPaperSissorsPlayersAndMoves){
+				for(var player2 in RockPaperSissorsPlayersAndMoves){
+					if(player1 != player2){
+						if(player1.move == player2.move){
+							player1.ties++
+							return;
+						}
+						switch(player1.move){
+							case 'rock': player2.move === 'sissors' ? player1.wins++ : player1.losses++;
+										break;
+							case 'paper': player2.move === 'rock' ? player1.wins++ : player1.losses++;
+										break;
+							case 'sissors': player2.move === 'paper' ? player1.wins++ : player1.losses++;
+										break;
+						}	
+					}
+				}
+				player1.winPercentage = player1.wins/player1.losses;
+			}
+			updateClientChat(clientList, ["RockPaperSissors has ended."]);
+			updateClientChat(clientList, ["Moves: " + JSON.stringify(RockPaperSissorsPlayersAndMoves)]);
+			RockPaperSissorsGameIsActive = false;
+		}, 20 * 1000);
+	} else {
+		var move = '';
+		switch(input){
+			case 'rock': move = 'rock'; break;
+			case 'paper': move = 'paper'; break;
+			case 'sissors': move = 'sissors'; break;
+			default: break;
+		}
+		if(move && RockPaperSissorsPlayersAndMoves.map(x => x.name != socket.name)){
+			updateClientChat([socket], ["You threw "+ move]);
+			RockPaperSissorsPlayersAndMoves.push({name: socket.name, move: move, wins: 0, losses: 0, ties: 0});
+		}
+	}
 }
 
 function rolldice(diceType) {
