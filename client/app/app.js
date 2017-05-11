@@ -62,6 +62,7 @@ var socket = io(silmarillion.remoteServer +":"+silmarillion.port);
   });
 
 	socket.on('connect', function () {
+        sendUserNameToServer();
 		connectionStatus.html('<span style="color: green;">Online</span>')
 	});
 	socket.on('disconnect', function () {
