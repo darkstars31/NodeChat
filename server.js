@@ -152,7 +152,8 @@ function rockpapersissors(socket, input) {
 				player.winPercentage = player.wins  / (player.wins + player.losses);
 				winner = player.winPercentage > winner.winPercentage ? player : winner;
 			});
-			updateClientChat(clientList, ["RockPaperScissors has ended. Winner: " + winner.name + " with "+ winner.winPercentage.toPrecision(3) * 100 + "%"]);
+			updateClientChat(clientList, ["RockPaperScissors has ended. Winner: " + winner.name + " threw "+ winner.move +
+											" with "+ winner.winPercentage.toPrecision(3) * 100 + "%"]);
 			RockPaperSissorsGameIsActive = false;
 		}, 15 * 1000);
 	} else {
