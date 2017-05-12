@@ -52,7 +52,32 @@ var socket = io(silmarillion.remoteServer +":"+silmarillion.port);
 		}, 50);
 	});
 	
-  socket.on('updateClientList', function (data) {
+	socket.on('updateClientList', function (data) {
+			updateClientList(data);
+	});
+
+	socket.on('setUsername', function (data) {
+		localStorage.setItem('username', data.username);
+	});
+
+	socket.on('connect', function () {
+        sendUserNameToServer();
+		connectionStatus.html('<span style="color: green;">Online</span>')
+	});
+	
+	socket.on('disconnect', function () {
+		connectionStatus.html('<span style="color: red;">Offline</span>')
+	});
+
+	socket.on('updateClientChat', function (data) {		 	
+		printMessagesToChatWindow(data);
+  	});
+
+	socket.on('updatePrivateMessage', function (data) {	
+		printMessagesToChatWindow(data);
+  	});
+
+	function updateClientList (data) {
 		clientList = data.clientIdList;
 		clientListDOM.html('');
 		userCount.html('Users: ' + data.clientIdList.length);
@@ -65,23 +90,7 @@ var socket = io(silmarillion.remoteServer +":"+silmarillion.port);
 				clientListDOM.append('<li><i class="fa fa-user" aria-hidden="true" style="line-height: 1em;"></i> '+client+'</li>');
 			}		
 		});
-  });
-
-	socket.on('connect', function () {
-        sendUserNameToServer();
-		connectionStatus.html('<span style="color: green;">Online</span>')
-	});
-	socket.on('disconnect', function () {
-		connectionStatus.html('<span style="color: red;">Offline</span>')
-	});
-
-	socket.on('updateClientChat', function (data) {		 	
-		printMessagesToChatWindow(data);
-  });
-
-	socket.on('updatePrivateMessage', function (data) {	
-		printMessagesToChatWindow(data);
-  });
+	}
 
 	function printMessagesToChatWindow (data) {
 		if(data.message) {

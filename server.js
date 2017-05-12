@@ -40,8 +40,13 @@ io.on('connection', function (socket) {
 	});		
 
 	socket.on('setUsername', function (data) {	
-		socket.name = data.username;
-		//socket.duplicateUsernameCount = clientList.map(function(client) {return client.name = data.username;}).length;			
+		if(findClientsByName(data.username).length > 1) {
+			socket.name = data.username + "("+findClientsByName(data.username).length+")";
+			socket.emit('setUsername', { username: socket.name });
+			updateClientList(clientList);
+		} else {
+			socket.name = data.username;
+		}	
 	});
 	
 	socket.on('disconnect', function() {
