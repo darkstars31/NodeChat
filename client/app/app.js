@@ -35,19 +35,21 @@ var socket = io(silmarillion.remoteServer +":"+silmarillion.port);
 		}
 	});
 
-	input.on('keyup', function () {
+	input.on('keydown', function () {
+		setTimeout( function () {
 			if(input.val().startsWith('@')){
 				var whisperList = clientList.filter(function (c) {return c != clientName});
 				inputTooltip.attr('data-balloon-visible', '');
 				if(whisperList.length > 0){
 					inputTooltip.attr('data-balloon', 'Whisper: @'+ whisperList.join(', @'));
-				}
+				} 
 			} else {
 				inputTooltip.removeAttr('data-balloon-visible');
 				setTimeout(function () {
 					inputTooltip.attr('data-balloon', '');
 				}, 250);
 			}
+		}, 50);
 	});
 	
   socket.on('updateClientList', function (data) {
